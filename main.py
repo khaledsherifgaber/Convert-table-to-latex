@@ -16,6 +16,8 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file is not None:
     try:
+        df = None
+        
         # Read the file
         if uploaded_file.name.endswith('.csv'):
             df = pd.read_csv(uploaded_file)
@@ -24,16 +26,19 @@ if uploaded_file is not None:
             excel_file = pd.ExcelFile(uploaded_file)
             sheet_names = excel_file.sheet_names
             
+            st.subheader("📑 Select Sheet")
+            
             # If multiple sheets, ask user to select one
             if len(sheet_names) > 1:
-                st.subheader("📑 Select Sheet")
                 selected_sheet = st.selectbox(
                     "This Excel file has multiple sheets. Which one would you like to convert?",
                     sheet_names
                 )
-                df = pd.read_excel(uploaded_file, sheet_name=selected_sheet)
             else:
-                df = pd.read_excel(uploaded_file)
+                selected_sheet = sheet_names[0]
+                st.info(f"Reading sheet: {selected_sheet}")
+            
+            df = pd.read_excel(uploaded_file, sheet_name=selected_sheet)
         
         # Display preview
         st.subheader("📋 Preview")
