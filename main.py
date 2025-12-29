@@ -79,16 +79,6 @@ if uploaded_file is not None:
         # Copy and download buttons
         col1, col2 = st.columns(2)
         
-        with col1:
-            st.write("### Copy to Clipboard")
-            st.text_area(
-                "LaTeX Code",
-                value=latex_code,
-                height=300,
-                disabled=True,
-                label_visibility="collapsed"
-            )
-        
         with col2:
             st.write("### Download")
             st.download_button(
@@ -102,3 +92,4 @@ if uploaded_file is not None:
         st.error(f"Error reading file: {str(e)}")
 else:
     st.info("👆 Upload a CSV or Excel file to get started")
+
