@@ -4,7 +4,7 @@ import io
 
 st.set_page_config(page_title="Table to LaTeX Converter", layout="wide")
 
-st.title("Table to LaTeX Converter")
+st.title("📊 Table to LaTeX Converter")
 st.markdown("Convert your CSV or Excel files to LaTeX table format")
 
 # File upload
@@ -20,10 +20,23 @@ if uploaded_file is not None:
         if uploaded_file.name.endswith('.csv'):
             df = pd.read_csv(uploaded_file)
         else:
-            df = pd.read_excel(uploaded_file)
+            # Get all sheet names for Excel files
+            excel_file = pd.ExcelFile(uploaded_file)
+            sheet_names = excel_file.sheet_names
+            
+            # If multiple sheets, ask user to select one
+            if len(sheet_names) > 1:
+                st.subheader("📑 Select Sheet")
+                selected_sheet = st.selectbox(
+                    "This Excel file has multiple sheets. Which one would you like to convert?",
+                    sheet_names
+                )
+                df = pd.read_excel(uploaded_file, sheet_name=selected_sheet)
+            else:
+                df = pd.read_excel(uploaded_file)
         
         # Display preview
-        st.subheader("Preview")
+        st.subheader("📋 Preview")
         st.dataframe(df, use_container_width=True)
         
         # Generate LaTeX
@@ -61,7 +74,15 @@ if uploaded_file is not None:
         # Copy and download buttons
         col1, col2 = st.columns(2)
         
-
+        with col1:
+            st.write("### Copy to Clipboard")
+            st.text_area(
+                "LaTeX Code",
+                value=latex_code,
+                height=300,
+                disabled=True,
+                label_visibility="collapsed"
+            )
         
         with col2:
             st.write("### Download")
@@ -76,4 +97,3 @@ if uploaded_file is not None:
         st.error(f"Error reading file: {str(e)}")
 else:
     st.info("👆 Upload a CSV or Excel file to get started")
-
