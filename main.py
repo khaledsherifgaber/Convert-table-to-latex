@@ -64,7 +64,35 @@ if uploaded_file is not None:
         
         # Add rows
         for _, row in df.iterrows():
-            row_str = " & ".join(str(val) for val in row) + " \\\\\n"
+            truncated_vals = []
+            for val in row:
+                val_str = str(val)
+                # Check if value is numeric
+                try:
+                    float(val_str)
+                    # Count only digits (remove . and -)
+                    digit_count = len(val_str.replace('.', '').replace('-', ''))
+                    if digit_count > 6:
+                        # Keep the sign and decimal point, but truncate digits
+                        sign = '-' if val_str.startswith('-') else ''
+                        num_part = val_str.lstrip('-')
+                        
+                        if '.' in num_part:
+                            parts = num_part.split('.')
+                            # Keep first 6 digits total
+                            int_part = parts[0]
+                            dec_part = parts[1]
+                            digits_needed = 6 - len(int_part)
+                            if digits_needed > 0:
+                                val_str = sign + int_part + '.' + dec_part[:digits_needed]
+                            else:
+                                val_str = sign + int_part[:6]
+                        else:
+                            val_str = sign + num_part[:6]
+                except ValueError:
+                    pass
+                truncated_vals.append(val_str)
+            row_str = " & ".join(truncated_vals) + " \\\\\n"
             latex_code += row_str
         
         latex_code += "\\hline\n"
@@ -79,6 +107,16 @@ if uploaded_file is not None:
         # Copy and download buttons
         col1, col2 = st.columns(2)
         
+        with col1:
+            st.write("### Copy to Clipboard")
+            st.text_area(
+                "LaTeX Code",
+                value=latex_code,
+                height=300,
+                disabled=True,
+                label_visibility="collapsed"
+            )
+        
         with col2:
             st.write("### Download")
             st.download_button(
@@ -92,4 +130,3 @@ if uploaded_file is not None:
         st.error(f"Error reading file: {str(e)}")
 else:
     st.info("👆 Upload a CSV or Excel file to get started")
-
