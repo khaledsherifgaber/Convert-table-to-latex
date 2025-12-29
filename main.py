@@ -62,24 +62,19 @@ if uploaded_file is not None:
         latex_code += header
         latex_code += "\\hline\n"
         
-        # Add rows
+        # Add rows with digit truncation
         for _, row in df.iterrows():
             truncated_vals = []
             for val in row:
                 val_str = str(val)
-                # Check if value is numeric
                 try:
                     float(val_str)
-                    # Count only digits (remove . and -)
                     digit_count = len(val_str.replace('.', '').replace('-', ''))
                     if digit_count > 6:
-                        # Keep the sign and decimal point, but truncate digits
                         sign = '-' if val_str.startswith('-') else ''
                         num_part = val_str.lstrip('-')
-                        
                         if '.' in num_part:
                             parts = num_part.split('.')
-                            # Keep first 6 digits total
                             int_part = parts[0]
                             dec_part = parts[1]
                             digits_needed = 6 - len(int_part)
